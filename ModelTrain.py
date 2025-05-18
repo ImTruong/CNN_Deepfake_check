@@ -133,7 +133,7 @@ def create_model():
     ])
     return model
 
-def train_model(model, train_data, test_data,epochs_per_batch=3):
+def train_model(model, train_data, val_data,epochs_per_batch=3):
     # print(f'---(Log) Start train .... ')
     #
     # # tạo một optimizer Adam với tốc độ học (learning rate) được chỉ định là 0.00005
@@ -149,15 +149,15 @@ def train_model(model, train_data, test_data,epochs_per_batch=3):
     #
     #     for batch in train_data:
     #         train_X, train_Y = batch['data'], batch['labels']
-    #         test_X, test_Y = test_data['data'], test_data['labels']
+    #         val_X, val_Y = val_data['data'], val_data['labels']
     #
     #         print(f"train_X: {train_X.shape}, train_Y: {train_Y.shape}")
     #         if train_X is None or train_Y is None:
     #             print("Found None values in train data!")
     #
-    #         print(f"test_X: {test_X.shape}, test_Y: {test_Y.shape}")
-    #         if test_X is None or test_Y is None:
-    #             print("Found None values in test data!")
+    #         print(f"val_X: {val_X.shape}, val_Y: {val_Y.shape}")
+    #         if val_X is None or val_Y is None:
+    #             print("Found None values in val data!")
     #
     #         # Train model
     #
@@ -170,15 +170,15 @@ def train_model(model, train_data, test_data,epochs_per_batch=3):
     #         # Thường thì bạn sẽ tăng số lượng epoch này lên để cải thiện độ chính xác,
     #         # nhưng có thể sẽ cần theo dõi để tránh tình trạng quá khớp (overfitting).
     #
-    #         # validation_data=(test_X, test_Y):
+    #         # validation_data=(val_X, val_Y):
     #         # validation_data: Là tham số cho phép bạn cung cấp dữ liệu kiểm tra (validation set) để đánh giá hiệu suất của mô hình sau mỗi epoch.
-    #         # test_X: Dữ liệu đầu vào dùng để kiểm tra mô hình (không tham gia vào quá trình huấn luyện).
-    #         # test_Y: Nhãn tương ứng với các mẫu trong test_X.
+    #         # val_X: Dữ liệu đầu vào dùng để kiểm tra mô hình (không tham gia vào quá trình huấn luyện).
+    #         # val_Y: Nhãn tương ứng với các mẫu trong val_X.
     #         # Việc cung cấp dữ liệu kiểm tra giúp bạn theo dõi độ chính xác và mất mát của mô hình trên dữ liệu chưa thấy trong quá trình huấn luyện.
     #
     #         # Biến history sẽ chứa thông tin về quá trình huấn luyện, bao gồm giá trị mất mát (loss) và độ chính xác (accuracy) cho cả dữ liệu huấn luyện và kiểm tra qua mỗi epoch.
     #         # Bạn có thể sử dụng history.history để truy cập các thông tin này sau khi huấn luyện xong, ví dụ để vẽ biểu đồ hoặc phân tích hiệu suất.
-    #         history = model.fit(train_X, train_Y, epochs=1, validation_data=(test_X, test_Y), shuffle=True)
+    #         history = model.fit(train_X, train_Y, epochs=1, validation_data=(val_X, val_Y), shuffle=True)
     #
     #         # gc.collect() được gọi để thu gom bộ nhớ không còn được sử dụng.
     #         # tf.keras.backend.clear_session() giúp giải phóng tài nguyên của phiên Keras trước đó, giúp tránh lỗi khi tái sử dụng mô hình.
@@ -238,16 +238,16 @@ def train_model(model, train_data, test_data,epochs_per_batch=3):
 
         train_batch = train_data[batch_index]
         train_X, train_Y = train_batch['data'], train_batch['labels']
-        test_X, test_Y = test_data['data'], test_data['labels']
+        val_X, val_Y = val_data['data'], val_data['labels']
 
         print(f"train_X: {train_X.shape}, train_Y: {train_Y.shape}")
         if train_X is None or train_Y is None:
             print("Found None values in train data!")
             continue
 
-        print(f"test_X: {test_X.shape}, test_Y: {test_Y.shape}")
-        if test_X is None or test_Y is None:
-            print("Found None values in test data!")
+        print(f"val_X: {val_X.shape}, val_Y: {val_Y.shape}")
+        if val_X is None or val_Y is None:
+            print("Found None values in val data!")
             continue
 
         # Áp dụng data augmentation on-the-fly để đa dạng hóa dữ liệu
@@ -266,7 +266,7 @@ def train_model(model, train_data, test_data,epochs_per_batch=3):
             datagen.flow(train_X, train_Y, batch_size=32),
             steps_per_epoch=len(train_X) // 32,
             epochs=epochs_per_batch,
-            validation_data=(test_X, test_Y),
+            validation_data=(val_X, val_Y),
             callbacks=[early_stopping, reduce_lr],
             shuffle=True
         )
@@ -288,9 +288,9 @@ def train_model(model, train_data, test_data,epochs_per_batch=3):
 
 ###########################Create model and train with easy batch###################################
 
-# # Load test set
-# with open('train_data/level/proccessedtest_batches/test_easy_batch.pickle', 'rb') as f:
-#     test_data = pkl.load(f)
+# # Load val set
+# with open('train_data/level/proccessedval_batches/val_easy_batch.pickle', 'rb') as f:
+#     val_data = pkl.load(f)
 #
 # # Load train set
 # train_data = []
@@ -306,7 +306,7 @@ def train_model(model, train_data, test_data,epochs_per_batch=3):
 #
 # # Create and train the model
 # model = create_model()
-# results = train_model(model, train_data, test_data)
+# results = train_model(model, train_data, val_data)
 #
 # # Save model after EASY level
 # model.save('trained_model/easy/trained_model_after_easy.keras')
@@ -317,9 +317,9 @@ def train_model(model, train_data, test_data,epochs_per_batch=3):
 
 ###########################Load easy model and train with mid batch###################################
 
-# # Load test set
-# with open('train_data/level/proccessedtest_batches/test_mid_batch.pickle', 'rb') as f:
-#     test_data = pkl.load(f)
+# # Load val set
+# with open('train_data/level/proccessedval_batches/val_mid_batch.pickle', 'rb') as f:
+#     val_data = pkl.load(f)
 #
 # # Load train set
 # train_data = []
@@ -335,7 +335,7 @@ def train_model(model, train_data, test_data,epochs_per_batch=3):
 #
 # # Create and train the model
 # model = keras.models.load_model('trained_model/easy/trained_model_after_easy.keras')
-# results = train_model(model, train_data, test_data)
+# results = train_model(model, train_data, val_data)
 #
 # # Save model after MID level
 # model.save('trained_model/mid/trained_model_after_mid.keras')
@@ -346,9 +346,9 @@ def train_model(model, train_data, test_data,epochs_per_batch=3):
 
 ###########################Load mid model and train with hard batch###################################
 
-# # Load test set
-# with open('train_data/level/proccessedtest_batches/test_hard_batch.pickle', 'rb') as f:
-#     test_data = pkl.load(f)
+# # Load val set
+# with open('train_data/level/proccessedval_batches/val_hard_batch.pickle', 'rb') as f:
+#     val_data = pkl.load(f)
 #
 # # Load train set
 # train_data = []
@@ -364,7 +364,7 @@ def train_model(model, train_data, test_data,epochs_per_batch=3):
 #
 # # Load and train the model
 # model = keras.models.load_model('trained_model/mid/trained_model_after_mid.keras')
-# results = train_model(model, train_data, test_data)
+# results = train_model(model, train_data, val_data)
 #
 # # Save model after HARD level
 # model.save('trained_model/hard/trained_model_after_hard.keras')
@@ -375,9 +375,9 @@ def train_model(model, train_data, test_data,epochs_per_batch=3):
 
 ###########################Load hard model and train with final model batch###################################
 
-# Load test set
-# with open('train_data/final model/normaltest_batches/test_batch.pickle', 'rb') as f:
-#     test_data = pkl.load(f)
+# Load val set
+# with open('train_data/final model/normalval_batches/val_batch.pickle', 'rb') as f:
+#     val_data = pkl.load(f)
 #
 # # Load train set
 # train_data = []
@@ -394,7 +394,7 @@ def train_model(model, train_data, test_data,epochs_per_batch=3):
 #
 # # Create and train the model
 # model = keras.models.load_model('trained_model/model ver 3/hard/trained_model_after_hard.keras')
-# results = train_model(model, train_data, test_data)
+# results = train_model(model, train_data, val_data)
 #
 # # Save model after EASY level
 # model.save('trained_model/final model/trained_model_after_normal.keras')
@@ -405,7 +405,7 @@ def train_model(model, train_data, test_data,epochs_per_batch=3):
 
 #######################train_ver2##################
 
-def train_model_ver3(model, train_batches_path, test_batch_path):
+def train_model_ver3(model, train_batches_path, val_batch_path):
     # Tạo optimizer Adam với learning rate = 0.0005
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.0005)
 
@@ -428,12 +428,12 @@ def train_model_ver3(model, train_batches_path, test_batch_path):
 
     lr_scheduler = keras.callbacks.LearningRateScheduler(scheduler)
 
-    # Đọc dữ liệu test
-    with open(test_batch_path, 'rb') as f:
-        test_batch = pkl.load(f)
+    # Đọc dữ liệu val
+    with open(val_batch_path, 'rb') as f:
+        val_batch = pkl.load(f)
 
-    test_X = test_batch['data']
-    test_Y = test_batch['labels']
+    val_X = val_batch['data']
+    val_Y = val_batch['labels']
 
     # Đọc và gộp tất cả dữ liệu train từ các batch
     train_X = []
@@ -453,12 +453,12 @@ def train_model_ver3(model, train_batches_path, test_batch_path):
     train_Y = np.vstack(train_Y)
 
     print(f"Train data shape: {train_X.shape}, Train labels shape: {train_Y.shape}")
-    print(f"Test data shape: {test_X.shape}, Test labels shape: {test_Y.shape}")
+    print(f"val data shape: {val_X.shape}, val labels shape: {val_Y.shape}")
 
     # Huấn luyện model với toàn bộ dữ liệu đã gộp
     history = model.fit(
         train_X, train_Y,
-        validation_data=(test_X, test_Y),
+        validation_data=(val_X, val_Y),
         epochs=30,
         batch_size=32,
         callbacks=[early_stopping, lr_scheduler]
@@ -467,16 +467,16 @@ def train_model_ver3(model, train_batches_path, test_batch_path):
     # Thu gom bộ nhớ
     gc.collect()
 
-    # Đánh giá mô hình trên dữ liệu test
-    test_loss, test_acc = model.evaluate(test_X, test_Y, verbose=2)
-    print("Độ chính xác trên tập test:", test_acc)
+    # Đánh giá mô hình trên dữ liệu val
+    val_loss, val_acc = model.evaluate(val_X, val_Y, verbose=2)
+    print("Độ chính xác trên tập val:", val_acc)
 
     return history
 
 
 # Đường dẫn đến các thư mục dữ liệu
 train_batches_path = 'train_data/normal/normaltrain_batches/'
-test_batch_path = 'train_data/normal/normaltest_batches/test_batch.pickle'
+val_batch_path = 'train_data/normal/normalval_batches/val_batch.pickle'
 
 # Load mô hình đã được huấn luyện trước đó
 model = keras.models.load_model('trained_model/model ver 3/normal/trained_model_after_normal.keras')
@@ -484,7 +484,7 @@ model = keras.models.load_model('trained_model/model ver 3/normal/trained_model_
 
 
 # Gọi hàm huấn luyện
-history = train_model_ver3(model, train_batches_path, test_batch_path)
+history = train_model_ver3(model, train_batches_path, val_batch_path)
 
 # Lưu mô hình đã train xong
 model.save('trained_model/model ver 3/normal/trained_model_after_normal.keras')
